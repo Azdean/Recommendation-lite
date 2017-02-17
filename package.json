@@ -1,15 +1,24 @@
 {
   "name": "recommender-lite",
   "version": "1.0.0",
-  "description": "",
+  "description": "Demonstration of collaborative filter and proportional representation method for recommending products",
   "main": "recommendation.js",
   "dependencies": {
-    "chalk": "^1.1.3"
+    "chalk": "^1.1.3",
+    "mongodb": "^2.2.16"
   },
+ "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azdean/Recommendation-lite.git"
+  },
+  "keywords": [
+    "product",
+    "recommendation"
+  ],
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "UP616941",
+  "license": "MIT"
 }
