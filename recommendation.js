@@ -1,5 +1,5 @@
 /* Recommendation.js
-  Authors: UP616941, *, *
+  Author: UP616941
   Demonstration of Collaborative Filter and Proportional Representation recommendation methods.
 */
 
