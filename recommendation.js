@@ -8,6 +8,7 @@ const g = require('ger');
 const esm = new g.MemESM();
 const ger = new g.GER(esm);
 const assert = require('assert');
+const chalk = require('chalk');
 
 var categoryGroups = JSON.parse('[{"cluster":[{"cat":"young-adult-fiction","weight":0.34375},{"cat":"fantasy","weight":0.3125},{"cat":"young-adult-fiction-fantasy","weight":0.3125},{"cat":"series","weight":0.1875},{"cat":"young-adult-fiction-series","weight":0.1875},{"cat":"love-and-romance","weight":0.0625},{"cat":"young-adult-fiction-love-and-romance","weight":0.0625}],"weight":1.46875,"percentage":55,"categories":["young-adult-fiction","fantasy","young-adult-fiction-fantasy","series","young-adult-fiction-series","love-and-romance","young-adult-fiction-love-and-romance"],"id":"PA0"},{"cluster":[{"cat":"young-adult-fiction","weight":0.34375},{"cat":"action-and-adventure","weight":0.09375},{"cat":"sci-fi","weight":0.09375},{"cat":"young-adult-fiction-sci-fi","weight":0.09375},{"cat":"young-adult-fiction-action-and-adventure","weight":0.03125}],"weight":0.65625,"percentage":24,"categories":["young-adult-fiction","action-and-adventure","sci-fi","young-adult-fiction-sci-fi","young-adult-fiction-action-and-adventure"],"id":"PA1"},{"cluster":[{"cat":"action-and-adventure","weight":0.09375},{"cat":"children-fiction","weight":0.09375},{"cat":"children-fiction-classics","weight":0.0625},{"cat":"children-fiction-legends-myths-and-fables","weight":0.0625},{"cat":"classics","weight":0.0625},{"cat":"legends-myths-and-fables","weight":0.0625},{"cat":"tweens-fiction","weight":0.0625},{"cat":"tweens-fiction-action-and-adventure","weight":0.0625}],"weight":0.5625,"percentage":21,"categories":["action-and-adventure","children-fiction","children-fiction-classics","children-fiction-legends-myths-and-fables","classics","legends-myths-and-fables","tweens-fiction","tweens-fiction-action-and-adventure"],"id":"PA2"}]');
 var databaseURL = "mongodb://localhost:27017/recommendation";
@@ -16,7 +17,7 @@ ger.initialize_namespace('categories'); // Initilise namespace for ger datastruc
 var noProductsToReturn = 10; // Defines the number of products to return.
 var newProductPercentage = 0.2; // Percentage of final output to fill with products from the collaborative filter.
 
-console.time('Execution time'); // Execution time.
+console.time(chalk.bgWhite.black.bold('Execution time')); // Execution time.
 // Grabs recommendations from the Collaborative Filter
 function getRecommendation (id, callback) {
   if (id && typeof id === 'string') {
@@ -190,30 +191,37 @@ function outputRecommendations (){
         }
       }
     } else {
-      console.log("Database Connection Error.");
+      console.log(chalk.red("Database Connection Error."));
     }
   });
 }
 outputRecommendations();
 
 function output(categoryGroups) {
-  console.log('\n| Product Recommendations |');
+  console.log(chalk.bgCyan.black('- - Recommended Products - -'));
   for (var i = 0; i < categoryGroups.length; i++) {
     var products = categoryGroups[i].products;
 
     if(products){
       for (var x = 0; x < products.length; x++) {
         var product = products[x];
-        console.log(product.n);
+        console.log(chalk.cyan(product.n));
       }
     }
   }
 
-  console.log('\n| More Info |');
+  console.log(chalk.bgGreen.black('- - Based on Clusters - -'));
+  for (var i = 0; i < categoryGroups.length; i++) {
+    var categories = categoryGroups[i].categories;
+
+    console.log(chalk.green(JSON.stringify(categories, null, 1)));
+  }
+
+  console.log(chalk.bgYellow.black('- - More Info - -'));
   for (var i = 0; i < categoryGroups.length; i++) {
     var cluster = categoryGroups[i];
-    console.log('ID: ' + cluster.id);
-    console.log('Type: ' + ((cluster.id.search('CF') ? 'Proportional Representation Algorithm' : 'Collaborative Filter')));
+    console.log(chalk.yellow('Cluster ID: ') + cluster.id);
+    console.log(chalk.yellow('Cluster Type: ') + ((cluster.id.search('CF') ? 'Proportional Representation Algorithm' : 'Collaborative Filter')));
 
     var categories = '';
     if(typeof cluster.categories !== 'string'){
@@ -225,16 +233,16 @@ function output(categoryGroups) {
     } else {
         categories = cluster.categories;
     }
-    console.log('Categories: ' + categories);
+    console.log(chalk.yellow('Cluster Categories: ') + categories);
 
-    console.log('Weight: ' + cluster.weight);
-    console.log('Output Percentage: ' + cluster.percentage + '%');
+    console.log(chalk.yellow('Cluster Weight: ') + cluster.weight);
+    console.log(chalk.yellow('Cluster Output Percentage: ') + cluster.percentage + '%');
     if(cluster.products === null){
-        console.log('Number of products recommended from this cluster:' + ' 0');
-        console.log('Recommended products belonging to this cluster:' + ' None');
-        console.log('Cluster returned no viable products');
+        console.log(chalk.yellow('Number of products recommended from this cluster:') + ' 0');
+        console.log(chalk.yellow('Recommended products belonging to this cluster:') + ' None');
+        console.log(chalk.red('Cluster returned no viable products'));
     } else {
-      console.log('Number of products recommended from this cluster: ' + cluster.products.length);
+      console.log(chalk.yellow('Number of products recommended from this cluster: ') + cluster.products.length);
       var productsRecommended = '';
       for (var x = 0; x < cluster.products.length; x++) {
         productsRecommended += '[' + cluster.products[x].n + '], ';
@@ -242,11 +250,11 @@ function output(categoryGroups) {
       if (!productsRecommended) {
         productsRecommended = 'None';
       }
-      console.log('Recommended products belonging to this cluster: ' + productsRecommended);
+      console.log(chalk.yellow('Recommended products belonging to this cluster: ') + productsRecommended);
     }
-    console.log('|------------------------------|');
+    console.log(chalk.yellow('- - - - - - -'));
   }
 
-  console.timeEnd('Execution time');
+  console.timeEnd(chalk.bgWhite.black.bold('Execution time'));
   process.exit(0);
 }
